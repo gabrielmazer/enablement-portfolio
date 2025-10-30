@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB-5891: Resolving API Authentication Errors (401 Unauthorized) | Company X</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --warning-color: #fbbc04;
+            --error-color: #ea4335;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-code: #f5f5f5;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        /* Header Navigation */
+        .kb-header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .kb-nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+
+        .kb-nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .kb-nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .kb-nav span {
+            color: var(--text-secondary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .toc {
+            list-style: none;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toc a:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .toc a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .sidebar-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .related-link {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            margin: 8px 0;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .related-link:hover {
+            background: #e8f0fe;
+        }
+
+        .related-link-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+        }
+
+        /* Article Header */
+        .article-header {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .article-id {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            background: var(--bg-secondary);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .tag-api { background: #e8f0fe; color: #1967d2; border-color: #1967d2; }
+        .tag-auth { background: #fce8e6; color: #c5221f; border-color: #c5221f; }
+        .tag-troubleshooting { background: #fef7e0; color: #f9ab00; border-color: #f9ab00; }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid;
+            display: flex;
+            gap: 15px;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .alert-warning {
+            background: #fef7e0;
+            border-color: var(--warning-color);
+            color: #7c4d00;
+        }
+
+        .alert-error {
+            background: #fce8e6;
+            border-color: var(--error-color);
+            color: #a50e0e;
+        }
+
+        .alert-info {
+            background: #e8f0fe;
+            border-color: var(--primary-color);
+            color: #185abc;
+        }
+
+        .alert-success {
+            background: #e6f4ea;
+            border-color: var(--secondary-color);
+            color: #137333;
+        }
+
+        /* Typography */
+        h2 {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            color: var(--text-primary);
+            margin: 40px 0 20px 0;
+            font-weight: 600;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        h2:first-of-type {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            color: var(--text-primary);
+            margin: 30px 0 15px 0;
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 20px 0 10px 0;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 15px 0;
+            color: var(--text-primary);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 10px 0;
+            color: var(--text-primary);
+        }
+
+        li::marker {
+            color: var(--primary-color);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #e8eaed;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #1557b0;
+        }
+
+        .copy-btn.copied {
+            background: var(--secondary-color);
+        }
+
+        pre {
+            padding: 20px;
+            margin: 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--text-primary);
+        }
+
+        /* Inline code */
+        p code, li code, td code {
+            background: var(--bg-code);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #c7254e;
+            border: 1px solid #ead9d9;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        tr:hover {
+            background: #f1f3f4;
+        }
+
+        /* Expandable Sections */
+        .expandable {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .expandable-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            user-select: none;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .expandable-header:hover {
+            background: #e8eaed;
+        }
+
+        .expandable-icon {
+            transition: transform 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .expandable.active .expandable-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .expandable.active .expandable-content {
+            max-height: 2000px;
+        }
+
+        .expandable-body {
+            padding: 20px;
+        }
+
+        /* Steps */
+        .step-container {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        /* Feedback Section */
+        .feedback {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .feedback h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .feedback-btn {
+            padding: 10px 24px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-btn:hover {
+            border-color: var(--primary-color);
+            background: #e8f0fe;
+            color: var(--primary-color);
+        }
+
+        .feedback-btn.selected {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+        }
+
+        /* Footer */
+        .article-footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .social-share {
+            display: flex;
+            gap: 10px;
+        }
+
+        .share-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--text-secondary);
+        }
+
+        .share-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-top:hover {
+            background: #1557b0;
+            transform: translateY(-5px);
+        }
+
+        .scroll-top.visible {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <div class="kb-header">
+        <div class="kb-nav">
+            <a href="#">🏠 Home</a>
+            <span>›</span>
+            <a href="#">Knowledge Base</a>
+            <span>›</span>
+            <a href="#">API & Integrations</a>
+            <span>›</span>
+            <span style="color: var(--text-primary);">KB-5891</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>On This Page</h3>
+            <ul class="toc">
+                <li><a href="#symptoms">Symptoms</a></li>
+                <li><a href="#environment">Environment</a></li>
+                <li><a href="#causes">Root Causes</a></li>
+                <li><a href="#resolution">Resolution Steps</a></li>
+                <li><a href="#verification">Verification</a></li>
+                <li><a href="#prevention">Prevention</a></li>
+            </ul>
+
+            <div class="sidebar-section">
+                <h3>Related Articles</h3>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">📄</span>
+                    <span>KB-5890: API Rate Limiting Best Practices</span>
+                </a>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">📄</span>
+                    <span>KB-5892: OAuth 2.0 Token Management</span>
+                </a>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">📄</span>
+                    <span>KB-5893: API Request Debugging Guide</span>
+                </a>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">📄</span>
+                    <span>KB-2341: VPN Gateway API Access</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Quick Links</h3>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">📖</span>
+                    <span>API Documentation</span>
+                </a>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">🎓</span>
+                    <span>API Training Videos</span>
+                </a>
+                <a href="#" class="related-link">
+                    <span class="related-link-icon">💬</span>
+                    <span>Developer Forum</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="article-header">
+                <div class="article-id">ARTICLE ID: KB-5891</div>
+                <h1>Resolving API Authentication Errors (401 Unauthorized)</h1>
+                
+                <div class="tags">
+                    <span class="tag tag-api">API</span>
+                    <span class="tag tag-auth">Authentication</span>
+                    <span class="tag tag-troubleshooting">Troubleshooting</span>
+                    <span class="tag">REST API</span>
+                    <span class="tag">OAuth 2.0</span>
+                </div>
+
+                <div class="article-meta">
+                    <div class="meta-item">
+                        <span>📅</span>
+                        <span>Last Updated: March 8, 2025</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>👤</span>
+                        <span>Author: Gabriel Mazer</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>👁️</span>
+                        <span>Views: 307</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>⭐</span>
+                        <span>Helpful: 94% (35 votes)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Data Sanitization Notice:</strong> This article has been sanitized for portfolio purposes. All sensitive information including API endpoints, client secrets, organization IDs, and internal URLs have been replaced with generic placeholders (xxx, CLIENT-ABC, etc.).
+                </div>
+            </div>
+
+            <!-- Symptoms -->
+            <h2 id="symptoms">🔍 Symptoms</h2>
+            <p>When making API requests to Company X's platform, you receive a <code>401 Unauthorized</code> error response. This indicates that your request lacks valid authentication credentials or the provided credentials are invalid/expired.</p>
+
+            <div class="alert alert-error">
+                <span class="alert-icon">❌</span>
+                <div>
+                    <strong>Common Error Messages:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li><code>{"error": "unauthorized", "message": "Invalid or expired token"}</code></li>
+                        <li><code>{"error": "authentication_failed", "code": 401}</code></li>
+                        <li><code>WWW-Authenticate: Bearer error="invalid_token"</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Example Error Response</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-label">HTTP Response</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+WWW-Authenticate: Bearer realm="Company X API"
+
+{
+  "error": "unauthorized",
+  "error_description": "The access token is invalid or has expired",
+  "error_code": "E-AUTH-001",
+  "timestamp": "2025-03-08T14:23:45Z",
+  "request_id": "req_xxxxxxxxxx"
+}</code></pre>
+            </div>
+
+            <!-- Environment -->
+            <h2 id="environment">🖥️ Environment</h2>
+            <p>This article applies to the following:</p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Affected Service</strong></td>
+                            <td>Company X REST API (v2 and v3)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API Endpoints</strong></td>
+                            <td>All authenticated endpoints (<code>api.xxx.com/v2/*</code>, <code>api.xxx.com/v3/*</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authentication Method</strong></td>
+                            <td>OAuth 2.0 Bearer Token</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Affected Clients</strong></td>
+                            <td>Any application or script making API requests</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Platforms</strong></td>
+                            <td>All (Windows, Linux, macOS, Mobile)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Root Causes -->
+            <h2 id="causes">🔎 Root Causes</h2>
+            <p>A <code>401 Unauthorized</code> error can occur due to several reasons. Understanding the root cause is essential for proper resolution.</p>
+
+            <h3>1. Expired Access Token</h3>
+            <p>OAuth 2.0 access tokens have a limited lifespan (default: 3600 seconds / 1 hour). If your application doesn't refresh the token before expiration, API requests will fail.</p>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">ℹ️</span>
+                <div>
+                    <strong>Token Lifecycle:</strong> Access tokens issued by Company X API expire after 1 hour. Refresh tokens are valid for 30 days and should be used to obtain new access tokens.
+                </div>
+            </div>
+
+            <h3>2. Invalid or Malformed Token</h3>
+            <p>Common scenarios include:</p>
+            <ul>
+                <li>Token was copied incorrectly (extra spaces, line breaks, truncated)</li>
+                <li>Token format is invalid (not a valid JWT structure)</li>
+                <li>Token was revoked manually through the admin portal</li>
+                <li>Using a token from a different environment (staging vs. production)</li>
+            </ul>
+
+            <h3>3. Missing Authorization Header</h3>
+            <p>The API request doesn't include the <code>Authorization</code> header or uses incorrect header formatting.</p>
+
+            <h3>4. Incorrect Token Scope</h3>
+            <p>The access token doesn't have the required scope/permissions for the requested API endpoint.</p>
+
+            <h3>5. Revoked or Deleted API Credentials</h3>
+            <p>The client application credentials (client_id/client_secret) were revoked or deleted from the organization's API settings.</p>
+
+            <h3>6. Clock Skew Issues</h3>
+            <p>Significant time difference between client system and API servers can cause token validation to fail (tokens have <code>iat</code> and <code>exp</code> timestamps).</p>
+
+            <!-- Resolution Steps -->
+            <h2 id="resolution">✅ Resolution Steps</h2>
+            <p>Follow these steps systematically to identify and resolve the authentication issue:</p>
+
+            <div class="step-container">
+                <h3><span class="step-number">1</span>Verify Token Format and Presence</h3>
+                <p>First, ensure your API request includes a properly formatted Authorization header:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Correct Format</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIx...
+</code></pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Common Mistakes:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>❌ <code>Authorization: eyJhbGci...</code> (missing "Bearer " prefix)</li>
+                            <li>❌ <code>Authorization: bearer eyJhbGci...</code> (lowercase "bearer")</li>
+                            <li>❌ <code>Authentication: Bearer eyJhbGci...</code> (wrong header name)</li>
+                            <li>❌ Extra spaces or line breaks in the token value</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">2</span>Check Token Expiration</h3>
+                <p>Decode your JWT token to check if it has expired. You can use online tools like jwt.io or decode programmatically:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Python Example</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>import jwt
+import datetime
+
+token = "your_access_token_here"
+
+try:
+    # Decode without verification (just to check claims)
+    decoded = jwt.decode(token, options={"verify_signature": False})
+    
+    exp_timestamp = decoded.get('exp')
+    exp_datetime = datetime.datetime.fromtimestamp(exp_timestamp)
+    
+    print(f"Token expires at: {exp_datetime}")
+    print(f"Current time: {datetime.datetime.now()}")
+    
+    if datetime.datetime.now() > exp_datetime:
+        print("❌ Token has EXPIRED")
+    else:
+        remaining = exp_datetime - datetime.datetime.now()
+        print(f"✅ Token valid for: {remaining}")
+        
+except jwt.DecodeError:
+    print("❌ Invalid token format")
+</code></pre>
+                </div>
+
+                <p><strong>If token is expired:</strong> Request a new token using your refresh token (see Step 4).</p>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">3</span>Verify Client Credentials</h3>
+                <p>Confirm that your client credentials (client_id and client_secret) are valid and haven't been revoked:</p>
+
+                <ol>
+                    <li>Log in to the Company X Admin Portal at <code>https://admin.xxx.com</code></li>
+                    <li>Navigate to <strong>Settings → API → Applications</strong></li>
+                    <li>Locate your application by client_id</li>
+                    <li>Verify status shows "Active" (not "Revoked" or "Suspended")</li>
+                    <li>Check the "Created" and "Last Used" timestamps</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Pro Tip:</strong> If credentials were recently rotated or regenerated, ensure you're using the NEW client_secret, not the old one. The old secret becomes invalid immediately upon rotation.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">4</span>Refresh Your Access Token</h3>
+                <p>If your token has expired, use your refresh token to obtain a new access token:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">cURL Example</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>curl -X POST "https://auth.xxx.com/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=your_refresh_token_here" \
+  -d "client_id=your_client_id" \
+  -d "client_secret=your_client_secret"</code></pre>
+                </div>
+
+                <h4>Expected Response:</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">JSON Response</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "new_refresh_token_here",
+  "scope": "read write admin"
+}</code></pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Important:</strong> Refresh tokens are single-use. When you use a refresh token, a NEW refresh token is issued. Store the new refresh token for future use, and discard the old one.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">5</span>Check Token Scopes</h3>
+                <p>Verify that your token has the required scopes for the API endpoint you're accessing:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Decode Token to Check Scopes</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>import jwt
+
+token = "your_access_token"
+decoded = jwt.decode(token, options={"verify_signature": False})
+
+print("Token scopes:", decoded.get('scope'))
+# Example output: "read write devices:manage"</code></pre>
+                </div>
+
+                <h4>Required Scopes by Endpoint:</h4>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Required Scope</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GET /v2/devices</code></td>
+                                <td><code>read</code> or <code>devices:read</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>POST /v2/devices/{id}/actions</code></td>
+                                <td><code>write</code> or <code>devices:manage</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>GET /v2/policies</code></td>
+                                <td><code>read</code> or <code>policies:read</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>PUT /v2/policies/{id}</code></td>
+                                <td><code>write</code> or <code>policies:write</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>GET /v2/logs/*</code></td>
+                                <td><code>logs:read</code> or <code>admin</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>DELETE /v2/organizations/{id}</code></td>
+                                <td><code>admin</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>If your token lacks required scopes, you'll need to request a new token with the appropriate scopes. Modify your OAuth authorization request:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Request Token with Specific Scopes</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>curl -X POST "https://auth.xxx.com/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=your_client_id" \
+  -d "client_secret=your_client_secret" \
+  -d "scope=read write devices:manage logs:read"</code></pre>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">6</span>Verify System Time Synchronization</h3>
+                <p>JWT tokens contain timestamp claims (<code>iat</code>, <code>exp</code>, <code>nbf</code>). If your system clock is significantly out of sync, token validation will fail.</p>
+
+                <h4>Check System Time (Linux/Mac):</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Check current time
+date
+
+# Compare with NTP server
+ntpdate -q pool.ntp.org
+
+# If time is off, sync with NTP
+sudo ntpdate -s time.nist.gov</code></pre>
+                </div>
+
+                <h4>Check System Time (Windows):</h4>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">PowerShell</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Check time synchronization status
+w32tm /query /status
+
+# Force time sync
+w32tm /resync</code></pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <div>
+                        <strong>Acceptable Clock Skew:</strong> Company X API allows up to 5 minutes of clock skew. Beyond that, token validation fails with a 401 error.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">7</span>Test with a Fresh Token</h3>
+                <p>Generate a completely new token from scratch to rule out any issues with cached or stored tokens:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Complete Token Request</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>curl -X POST "https://auth.xxx.com/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=CLIENT_ID_HERE" \
+  -d "client_secret=CLIENT_SECRET_HERE" \
+  -d "scope=read write"</code></pre>
+                </div>
+
+                <p>Then immediately test the new token with a simple API call:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Test API Call</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>curl -X GET "https://api.xxx.com/v2/organizations/current" \
+  -H "Authorization: Bearer YOUR_NEW_TOKEN_HERE" \
+  -H "Content-Type: application/json"</code></pre>
+                </div>
+
+                <p>If this works, the issue was with your previous token. If it still fails, proceed to Step 8.</p>
+            </div>
+
+            <div class="step-container">
+                <h3><span class="step-number">8</span>Enable Verbose Logging and Debug</h3>
+                <p>Use verbose mode to see detailed authentication information:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">cURL with Verbose Output</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>curl -v -X GET "https://api.xxx.com/v2/devices" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  2>&1 | grep -i "authorization\|www-authenticate\|401"</code></pre>
+                </div>
+
+                <p>Look for specific clues in the <code>WWW-Authenticate</code> response header:</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">WWW-Authenticate Header Examples</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>WWW-Authenticate: Bearer error="invalid_token", error_description="Token has expired"
+WWW-Authenticate: Bearer error="invalid_token", error_description="Token signature verification failed"
+WWW-Authenticate: Bearer error="insufficient_scope", error_description="Token lacks required scope"</code></pre>
+                </div>
+            </div>
+
+            <!-- Verification -->
+            <h2 id="verification">✔️ Verification</h2>
+            <p>After implementing the resolution steps, verify that the issue is resolved:</p>
+
+            <h3>1. Successful API Response</h3>
+            <p>A successful authenticated request should return <code>200 OK</code> or <code>201 Created</code> with the expected data:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-label">Success Response Example</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 987
+
+{
+  "data": {
+    "organization_id": "org_xxxxxxxxxx",
+    "name": "Client ABC",
+    "created_at": "2025-01-15T10:30:00Z",
+    ...
+  }
+}</code></pre>
+            </div>
+
+            <h3>2. Test Multiple Endpoints</h3>
+            <p>Verify authentication works across different API endpoints to ensure comprehensive access:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-label">Verification Script (Python)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>import requests
+
+token = "your_access_token"
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+}
+
+endpoints = [
+    "https://api.xxx.com/v2/organizations/current",
+    "https://api.xxx.com/v2/devices?limit=5",
+    "https://api.xxx.com/v2/policies",
+]
+
+for endpoint in endpoints:
+    response = requests.get(endpoint, headers=headers)
+    if response.status_code == 200:
+        print(f"✅ {endpoint} - SUCCESS")
+    else:
+        print(f"❌ {endpoint} - FAILED ({response.status_code})")
+        print(f"   Error: {response.json()}")</code></pre>
+            </div>
+
+            <h3>3. Validate Token Claims</h3>
+            <p>Ensure your token contains the expected claims and hasn't been tampered with:</p>
+
+            <div class="expandable">
+                <div class="expandable-header" onclick="toggleExpandable(this)">
+                    <span>Example Valid Token Payload</span>
+                    <span class="expandable-icon">▼</span>
+                </div>
+                <div class="expandable-content">
+                    <div class="expandable-body">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-label">JWT Payload (Decoded)</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            </div>
+                            <pre><code>{
+  "sub": "client_abc_application",
+  "iss": "https://auth.xxx.com",
+  "aud": "https://api.xxx.com",
+  "iat": 1709905425,
+  "exp": 1709909025,
+  "scope": "read write devices:manage",
+  "client_id": "client_xxxxxxxxxx",
+  "org_id": "org_xxxxxxxxxx",
+  "jti": "token_unique_id_xxxxx"
+}</code></pre>
+                        </div>
+                        <p><strong>Key Claims to Verify:</strong></p>
+                        <ul>
+                            <li><code>iss</code>: Issuer must be <code>https://auth.xxx.com</code></li>
+                            <li><code>aud</code>: Audience must be <code>https://api.xxx.com</code></li>
+                            <li><code>exp</code>: Expiration timestamp must be in the future</li>
+                            <li><code>scope</code>: Must include scopes needed for your operations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prevention -->
+            <h2 id="prevention">🛡️ Prevention & Best Practices</h2>
+            <p>Implement these practices to avoid authentication issues in your applications:</p>
+
+            <h3>1. Implement Token Refresh Logic</h3>
+            <p>Always refresh tokens before they expire, not after:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-label">Python Token Manager Example</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>import time
+import requests
+
+class TokenManager:
+    def __init__(self, client_id, client_secret):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.access_token = None
+        self.refresh_token = None
+        self.expires_at = 0
+        
+    def get_token(self):
+        # Refresh 5 minutes before expiration
+        if time.time() >= (self.expires_at - 300):
+            self._refresh_token()
+        return self.access_token
+    
+    def _refresh_token(self):
+        data = {
+            "grant_type": "refresh_token" if self.refresh_token else "client_credentials",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+        }
+        
+        if self.refresh_token:
+            data["refresh_token"] = self.refresh_token
+            
+        response = requests.post("https://auth.xxx.com/oauth/token", data=data)
+        
+        if response.status_code == 200:
+            token_data = response.json()
+            self.access_token = token_data["access_token"]
+            self.refresh_token = token_data.get("refresh_token")
+            self.expires_at = time.time() + token_data["expires_in"]
+        else:
+            raise Exception(f"Token refresh failed: {response.text}")
+
+# Usage
+token_mgr = TokenManager("your_client_id", "your_client_secret")
+headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
+            </div>
+
+            <h3>2. Store Credentials Securely</h3>
+            <div class="alert alert-warning">
+                <span class="alert-icon">🔒</span>
+                <div>
+                    <strong>Security Best Practices:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Never hardcode client_secret in source code</li>
+                        <li>Use environment variables or secure secret management (e.g., AWS Secrets Manager, HashiCorp Vault)</li>
+                        <li>Never commit tokens or secrets to version control</li>
+                        <li>Rotate credentials regularly (every 90 days)</li>
+                        <li>Use different credentials for dev/staging/production</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>3. Implement Proper Error Handling</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-label">Robust Error Handling Example</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>def make_api_request(endpoint, token):
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    try:
+        response = requests.get(endpoint, headers=headers, timeout=30)
+        
+        if response.status_code == 401:
+            # Authentication failed - try refreshing token
+            new_token = refresh_access_token()
+            headers["Authorization"] = f"Bearer {new_token}"
+            response = requests.get(endpoint, headers=headers, timeout=30)
+        
+        response.raise_for_status()
+        return response.json()
+        
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            print("Authentication failed even after token refresh")
+            # Log to monitoring system, alert team
+        raise
+    except requests.exceptions.Timeout:
+        print("API request timed out")
+        raise
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise</code></pre>
+            </div>
+
+            <h3>4. Monitor Token Usage</h3>
+            <p>Implement monitoring to detect authentication issues early:</p>
+            <ul>
+                <li>Log all 401 errors with request details</li>
+                <li>Set up alerts for sudden spikes in auth failures</li>
+                <li>Track token refresh frequency</li>
+                <li>Monitor API rate limits alongside auth metrics</li>
+            </ul>
+
+            <h3>5. Use Token Caching Wisely</h3>
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Caching Guidelines:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Cache tokens in-memory for the application lifetime</li>
+                        <li>If caching to disk/database, encrypt the tokens</li>
+                        <li>Set cache TTL to be less than token expiration</li>
+                        <li>Invalidate cache when receiving 401 errors</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Resources -->
+            <div class="expandable" style="margin-top: 40px;">
+                <div class="expandable-header" onclick="toggleExpandable(this)">
+                    <span><strong>📚 Additional Technical Details</strong></span>
+                    <span class="expandable-icon">▼</span>
+                </div>
+                <div class="expandable-content">
+                    <div class="expandable-body">
+                        <h4>OAuth 2.0 Grant Types Supported</h4>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Grant Type</th>
+                                        <th>Use Case</th>
+                                        <th>Token Lifetime</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>client_credentials</code></td>
+                                        <td>Server-to-server API access</td>
+                                        <td>1 hour</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>authorization_code</code></td>
+                                        <td>Web applications with user context</td>
+                                        <td>1 hour (access), 30 days (refresh)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>refresh_token</code></td>
+                                        <td>Obtaining new access tokens</td>
+                                        <td>1 hour (new access token)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>API Rate Limits</h4>
+                        <p>Authentication endpoints have specific rate limits:</p>
+                        <ul>
+                            <li><code>/oauth/token</code>: 60 requests per minute per client_id</li>
+                            <li>Exceeding limits returns <code>429 Too Many Requests</code></li>
+                            <li>Implement exponential backoff for retries</li>
+                        </ul>
+
+                        <h4>JWT Signature Algorithms</h4>
+                        <p>Company X API uses <code>RS256</code> (RSA Signature with SHA-256) for JWT signing. Public keys for verification are available at:</p>
+                        <div class="code-block">
+                            <pre><code>https://auth.xxx.com/.well-known/jwks.json</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback">
+                <h3>Was this article helpful?</h3>
+                <p style="color: var(--text-secondary);">Your feedback helps us improve our documentation</p>
+                <div class="feedback-buttons">
+                    <button class="feedback-btn" onclick="submitFeedback('yes')">
+                        <span>👍</span>
+                        <span>Yes, this helped</span>
+                    </button>
+                    <button class="feedback-btn" onclick="submitFeedback('no')">
+                        <span>👎</span>
+                        <span>No, I need more help</span>
+                    </button>
+                </div>
+                <p style="margin-top: 20px; font-size: 0.9rem; color: var(--text-secondary);">
+                    Still having issues? <a href="#" style="color: var(--primary-color);">Contact Support</a> or visit our 
+                    <a href="#" style="color: var(--primary-color);">Community Forum</a>
+                </p>
+            </div>
+
+            <!-- Article Footer -->
+            <div class="article-footer">
+                <div>
+                    <strong>Last reviewed:</strong> March 8, 5<br>
+                    <strong>Article ID:</strong> KB-5891
+                </div>
+                <div class="social-share">
+                    <span style="margin-right: 10px; color: var(--text-secondary);">Share:</span>
+                    <a href="#" class="share-btn" title="Copy link">🔗</a>
+                    <a href="#" class="share-btn" title="Email">✉️</a>
+                    <a href="#" class="share-btn" title="Print">🖨️</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        ↑
+    </div>
+
+    <script>
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        // Toggle expandable sections
+        function toggleExpandable(header) {
+            const expandable = header.parentElement;
+            expandable.classList.toggle('active');
+        }
+
+        // Scroll to top functionality
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Active TOC highlighting
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const id = entry.target.getAttribute('id');
+                const tocLink = document.querySelector(`.toc a[href="#${id}"]`);
+                if (entry.intersectionRatio > 0) {
+                    document.querySelectorAll('.toc a').forEach(link => link.classList.remove('active'));
+                    if (tocLink) tocLink.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -80% 0px' });
+
+        document.querySelectorAll('h2[id]').forEach(section => observer.observe(section));
+
+        // Feedback functionality
+        function submitFeedback(type) {
+            const buttons = document.querySelectorAll('.feedback-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                if ((type === 'yes' && btn.textContent.includes('Yes')) ||
+                    (type === 'no' && btn.textContent.includes('No'))) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // Simulate feedback submission
+            setTimeout(() => {
+                alert('Thank you for your feedback!');
+            }, 300);
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

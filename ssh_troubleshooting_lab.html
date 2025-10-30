@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSH Connection Troubleshooting Lab | Company X</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2962ff;
+            --secondary-blue: #4285f4;
+            --accent-green: #34a853;
+            --warning-orange: #fb8c00;
+            --error-red: #ea4335;
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2d2d2d;
+            --bg-light: #3a3a3a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --code-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-medium);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        .metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 20px;
+        }
+
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metadata-icon {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        /* Content */
+        .content {
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid;
+            background: var(--bg-light);
+        }
+
+        .alert-warning {
+            border-color: var(--warning-orange);
+            background: rgba(251, 140, 0, 0.1);
+        }
+
+        .alert-info {
+            border-color: var(--secondary-blue);
+            background: rgba(66, 133, 244, 0.1);
+        }
+
+        .alert-success {
+            border-color: var(--accent-green);
+            background: rgba(52, 168, 83, 0.1);
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            color: var(--secondary-blue);
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            color: var(--text-primary);
+            margin: 30px 0 15px 0;
+        }
+
+        /* Scenario Box */
+        .scenario {
+            background: linear-gradient(135deg, rgba(234, 67, 53, 0.1) 0%, rgba(251, 140, 0, 0.1) 100%);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--error-red);
+            margin-bottom: 30px;
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--error-red);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .scenario-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--error-red);
+        }
+
+        .scenario-details {
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .scenario-details dt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .scenario-details dd {
+            color: var(--text-primary);
+            margin-left: 0;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Steps Accordion */
+        .steps {
+            margin: 30px 0;
+        }
+
+        .step {
+            background: var(--bg-light);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .step-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            background: var(--bg-medium);
+        }
+
+        .step-header:hover {
+            background: var(--bg-light);
+        }
+
+        .step-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-chevron {
+            transition: transform 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .step.active .step-chevron {
+            transform: rotate(180deg);
+        }
+
+        .step-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .step.active .step-content {
+            max-height: 3000px;
+        }
+
+        .step-body {
+            padding: 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .code-header {
+            background: var(--bg-dark);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-language {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary-blue);
+        }
+
+        .copy-btn.copied {
+            background: var(--accent-green);
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #d4d4d4;
+        }
+
+        /* Syntax Highlighting */
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .variable { color: #9cdcfe; }
+
+        /* Output Box */
+        .output {
+            background: var(--bg-dark);
+            border-left: 4px solid var(--accent-green);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .output-label {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin: 5px 5px 5px 0;
+            font-weight: 500;
+        }
+
+        .tag-critical { background: rgba(234, 67, 53, 0.2); color: var(--error-red); }
+        .tag-ssh { background: rgba(66, 133, 244, 0.2); color: var(--secondary-blue); }
+        .tag-network { background: rgba(251, 140, 0, 0.2); color: var(--warning-orange); }
+
+        /* Collapsible Reference */
+        .reference {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .reference-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reference-content {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .reference.active .reference-content {
+            display: block;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-dark);
+            color: var(--secondary-blue);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--bg-dark);
+        }
+
+        /* Key Takeaways */
+        .takeaways {
+            background: linear-gradient(135deg, rgba(52, 168, 83, 0.1) 0%, rgba(66, 133, 244, 0.1) 100%);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--accent-green);
+            margin: 30px 0;
+        }
+
+        .takeaway-item {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            align-items: flex-start;
+        }
+
+        .takeaway-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-dark);
+            padding: 30px 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 20px;
+            }
+
+            .step-title {
+                font-size: 1rem;
+            }
+
+            .step-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            pre {
+                padding: 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>SSH Connection Troubleshooting Lab</h1>
+                <div class="subtitle">Interactive Hands-On Guide for Support Analysts</div>
+                <div class="metadata">
+                    <div class="metadata-item">
+                        <span>📅 Created: February 2025</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span>👤 Author: Gabriel Mazer</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span>⏱️ Est. Time: 30-45 minutes</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span>🎯 Level: L2 Support</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="alert alert-warning">
+                <div class="alert-title">⚠️ Data Sanitization Notice</div>
+                <p>This lab has been sanitized for portfolio purposes. All sensitive information including company names, client identifiers, IP addresses, and server hostnames have been replaced with generic placeholders (Company X, xxx.xxx.com, etc.). The troubleshooting methodology and technical approach remain authentic.</p>
+            </div>
+
+            <h2>📋 Lab Overview</h2>
+            <p>This interactive lab simulates a real-world SSH connectivity issue reported by a customer. You'll walk through the complete troubleshooting process, from initial assessment to resolution, learning industry-standard diagnostic techniques along the way.</p>
+
+            <div class="scenario">
+                <div class="scenario-header">
+                    <div class="scenario-icon">
+                        <span style="font-size: 24px;">🚨</span>
+                    </div>
+                    <div>
+                        <div class="scenario-title">Customer Reported Issue</div>
+                        <div style="color: var(--text-secondary); margin-top: 5px;">
+                            <span class="tag tag-critical">P2 - High Priority</span>
+                            <span class="tag tag-ssh">SSH</span>
+                            <span class="tag tag-network">Connectivity</span>
+                        </div>
+                    </div>
+                </div>
+                <p><strong>Ticket #78432:</strong> "Multiple users from Client ABC cannot establish SSH connections to remote VPN gateway for administrative tasks. Connection attempts timeout after 30 seconds. Affecting 5 administrators across different locations."</p>
+                
+                <div class="scenario-details">
+                    <dl>
+                        <dt>Customer Organization:</dt>
+                        <dd>Client ABC (Enterprise - 1,500 users)</dd>
+                        
+                        <dt>Affected Service:</dt>
+                        <dd>SSH access to VPN gateway (vpn-gw-abc.xxx.com)</dd>
+                        
+                        <dt>Error Message:</dt>
+                        <dd>"ssh: connect to host vpn-gw-abc.xxx.com port 22: Connection timed out"</dd>
+                        
+                        <dt>Impact:</dt>
+                        <dd>Administrators cannot manage VPN configurations, impacting deployment schedule</dd>
+                        
+                        <dt>Reported By:</dt>
+                        <dd>Client ABC (IT Manager) - clientabc@xxx-client.com</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <h2>🔍 Investigation Steps</h2>
+            <p>Click on each step below to expand and follow the troubleshooting process:</p>
+
+            <div class="steps">
+                <!-- Step 1 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">1</div>
+                            <span>Initial Assessment & Information Gathering</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Gather critical information about the issue before diving into technical diagnostics.</p>
+
+                            <h3>Questions to Ask</h3>
+                            <ul>
+                                <li>When did the issue start? (Timeline helps identify changes/deployments)</li>
+                                <li>Is it affecting all users or specific ones?</li>
+                                <li>Are users connecting from corporate network or remote locations?</li>
+                                <li>Has anything changed recently? (Firewall rules, network config, SSH server updates)</li>
+                                <li>Can users SSH to other servers successfully?</li>
+                            </ul>
+
+                            <h3>Initial Findings</h3>
+                            <div class="alert alert-info">
+                                <p><strong>Customer Response:</strong></p>
+                                <ul>
+                                    <li>Issue started approximately 2 hours ago (around 14:00 UTC)</li>
+                                    <li>Affecting users from multiple locations (HQ and 3 branch offices)</li>
+                                    <li>Users can access other internal servers via SSH</li>
+                                    <li>No recent changes reported by customer's IT team</li>
+                                    <li>VPN clients are connecting successfully (only SSH admin access affected)</li>
+                                </ul>
+                            </div>
+
+                            <h3>Your Analysis</h3>
+                            <p>Based on these findings:</p>
+                            <ul>
+                                <li>✅ Issue is specific to this VPN gateway (not client-side SSH problem)</li>
+                                <li>✅ Started recently (suggests a change or failure occurred)</li>
+                                <li>✅ Affects multiple locations (rules out local network issue)</li>
+                                <li>⚠️ Need to check our infrastructure logs for changes around 14:00 UTC</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">2</div>
+                            <span>Check SSH Service Status</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Verify that the SSH service (sshd) is running on the target server.</p>
+
+                            <h3>Access the Server</h3>
+                            <p>First, access the VPN gateway through our management console (since direct SSH is failing):</p>
+
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Connect via console access (alternative method)</span>
+ssh -i ~/.ssh/company_x_admin.pem admin@console.xxx.com
+
+<span class="comment"># Once connected to console, access the VPN gateway</span>
+console> connect vpn-gw-abc.xxx.com</code></pre>
+                            </div>
+
+                            <h3>Check Service Status</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Check if SSH service is running</span>
+sudo systemctl status sshd
+
+<span class="comment"># Alternative: Check if process is running</span>
+ps aux | grep sshd
+
+<span class="comment"># Check if SSH port is listening</span>
+sudo netstat -tuln | grep :22</code></pre>
+                            </div>
+
+                            <h3>Expected Output</h3>
+                            <div class="output">
+                                <div class="output-label">✅ Normal Output (Service Running):</div>
+                                <pre>● sshd.service - OpenSSH server daemon
+   Loaded: loaded (/lib/systemd/system/ssh.service; enabled)
+   Active: active (running) since Mon 2025-02-19 14:05:32 UTC
+   Main PID: 1234 (sshd)
+   
+tcp  0  0  0.0.0.0:22  0.0.0.0:*  LISTEN</pre>
+                            </div>
+
+                            <h3>Findings</h3>
+                            <div class="alert alert-success">
+                                <p><strong>Result:</strong> SSH service is running normally. The service restarted at 14:05 UTC (5 minutes after reported issue start). This is suspicious and warrants further investigation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">3</div>
+                            <span>Analyze SSH and System Logs</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Examine logs to identify what caused the SSH service restart and any connection failures.</p>
+
+                            <h3>Check Authentication Logs</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># View recent SSH authentication attempts</span>
+sudo tail -n 100 /var/log/auth.log | grep sshd
+
+<span class="comment"># Look for errors around 14:00 UTC</span>
+sudo journalctl -u sshd --since "14:00" --until "14:10"
+
+<span class="comment"># Check for connection timeouts</span>
+sudo grep "Connection closed" /var/log/auth.log | tail -20</code></pre>
+                            </div>
+
+                            <h3>Critical Finding in Logs</h3>
+                            <div class="output">
+                                <div class="output-label">⚠️ Error Found:</div>
+                                <pre>Feb 19 14:00:15 vpn-gw-abc sshd[1234]: error: Bind to port 22 failed: Address already in use.
+Feb 19 14:00:15 vpn-gw-abc sshd[1234]: fatal: Cannot bind any address.
+Feb 19 14:05:30 vpn-gw-abc systemd[1]: sshd.service: Main process exited
+Feb 19 14:05:32 vpn-gw-abc systemd[1]: sshd.service: Automatic restart scheduled</pre>
+                            </div>
+
+                            <h3>Check System Logs for Related Events</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Check what else happened at 14:00</span>
+sudo journalctl --since "14:00" --until "14:10" | grep -i error
+
+<span class="comment"># Check if configuration was changed</span>
+sudo grep "sshd_config" /var/log/syslog</code></pre>
+                            </div>
+
+                            <h3>Analysis</h3>
+                            <div class="alert alert-warning">
+                                <div class="alert-title">🔍 Root Cause Identified</div>
+                                <p>SSH service crashed at 14:00 due to port binding conflict. The service auto-restarted at 14:05, but this explains the 5-minute outage window. Need to investigate what else was trying to use port 22.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">4</div>
+                            <span>Network & Firewall Verification</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Verify network connectivity and firewall rules to ensure SSH traffic can reach the server.</p>
+
+                            <h3>Test Network Connectivity</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># From your workstation, test basic connectivity</span>
+ping -c 4 vpn-gw-abc.xxx.com
+
+<span class="comment"># Test if port 22 is reachable</span>
+telnet vpn-gw-abc.xxx.com 22
+<span class="comment"># Or use nc (netcat)</span>
+nc -zv vpn-gw-abc.xxx.com 22
+
+<span class="comment"># Check route to server</span>
+traceroute vpn-gw-abc.xxx.com</code></pre>
+                            </div>
+
+                            <h3>Check Firewall Rules on Server</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Check iptables rules</span>
+sudo iptables -L -n -v | grep 22
+
+<span class="comment"># If using firewalld</span>
+sudo firewall-cmd --list-all
+
+<span class="comment"># Check if port 22 is allowed</span>
+sudo firewall-cmd --query-port=22/tcp</code></pre>
+                            </div>
+
+                            <h3>Check Security Groups (Cloud Provider)</h3>
+                            <p>Since this is hosted infrastructure, verify security group rules via API:</p>
+
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Query security groups via API</span>
+curl -X GET "https://api.xxx.com/v2/infrastructure/security-groups?server=vpn-gw-abc" \
+  -H "Authorization: Bearer xxxTOKENxxx" \
+  -H "Content-Type: application/json"</code></pre>
+                            </div>
+
+                            <h3>Findings</h3>
+                            <div class="alert alert-info">
+                                <p><strong>Network Check Results:</strong></p>
+                                <ul>
+                                    <li>✅ Server is reachable via ping (no packet loss)</li>
+                                    <li>✅ Port 22 is accessible from external networks</li>
+                                    <li>✅ Firewall rules correctly allow SSH traffic from authorized IPs</li>
+                                    <li>✅ Security group configuration unchanged</li>
+                                    <li>✅ No network-level issues detected</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">5</div>
+                            <span>SSH Configuration & Certificate Validation</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Examine SSH daemon configuration and validate host keys/certificates.</p>
+
+                            <h3>Review SSH Configuration</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Check SSH daemon configuration</span>
+sudo cat /etc/ssh/sshd_config | grep -v "^#" | grep -v "^$"
+
+<span class="comment"># Verify configuration syntax</span>
+sudo sshd -t
+
+<span class="comment"># Check what port SSH is configured to use</span>
+sudo grep "^Port" /etc/ssh/sshd_config</code></pre>
+                            </div>
+
+                            <h3>Validate Host Keys</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># List SSH host keys</span>
+ls -la /etc/ssh/ssh_host_*
+
+<span class="comment"># Check key permissions (should be 600 for private keys)</span>
+stat /etc/ssh/ssh_host_rsa_key
+
+<span class="comment"># Verify key fingerprints</span>
+ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code></pre>
+                            </div>
+
+                            <h3>Critical Discovery</h3>
+                            <div class="output">
+                                <div class="output-label">🔴 Configuration Issue Found:</div>
+                                <pre>Port 22
+Port 2222  <span style="color: #fb8c00;">← DUPLICATE PORT DEFINITION!</span>
+
+# This was recently added by automation script
+# Caused port binding conflict when service restarted</pre>
+                            </div>
+
+                            <h3>Root Cause Analysis</h3>
+                            <div class="alert alert-warning">
+                                <div class="alert-title">💡 Problem Identified</div>
+                                <p><strong>What happened:</strong></p>
+                                <ol>
+                                    <li>An automation script added "Port 2222" to sshd_config at 13:58 UTC (2 minutes before issue)</li>
+                                    <li>Configuration reload was triggered at 14:00 UTC</li>
+                                    <li>SSH daemon attempted to bind to both ports 22 and 2222</li>
+                                    <li>Port binding conflict occurred (another process using port 2222)</li>
+                                    <li>SSH service crashed and auto-restarted after 5 minutes</li>
+                                    <li>On restart, the duplicate port line caused intermittent binding issues</li>
+                                </ol>
+                            </div>
+
+                            <h3>Verify the Conflict</h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Check what's using port 2222</span>
+sudo lsof -i :2222
+
+<span class="comment"># Alternative command</span>
+sudo netstat -tulpn | grep 2222</code></pre>
+                            </div>
+
+                            <div class="output">
+                                <div class="output-label">Output:</div>
+                                <pre>COMMAND    PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+openvpn   5678  root    8u  IPv4  12345      0t0  TCP *:2222 (LISTEN)</pre>
+                            </div>
+
+                            <p><strong>Explanation:</strong> OpenVPN management interface is already using port 2222, creating a conflict with the new SSH configuration.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="step">
+                    <div class="step-header" onclick="toggleStep(this)">
+                        <div class="step-title">
+                            <div class="step-number">6</div>
+                            <span>Resolution & Verification</span>
+                        </div>
+                        <div class="step-chevron">▼</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-body">
+                            <h3>Objective</h3>
+                            <p>Resolve the configuration conflict and verify SSH access is restored.</p>
+
+                            <h3>Solution Steps</h3>
+
+                            <h4>1. Backup Current Configuration</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Always backup before making changes</span>
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d-%H%M%S)</code></pre>
+                            </div>
+
+                            <h4>2. Remove Duplicate Port Configuration</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Edit SSH configuration</span>
+sudo nano /etc/ssh/sshd_config
+
+<span class="comment"># Remove or comment out the duplicate port line:</span>
+<span class="comment"># Port 2222  ← DELETE THIS LINE</span>
+
+<span class="comment"># Or use sed for automated fix</span>
+sudo sed -i '/^Port 2222/d' /etc/ssh/sshd_config</code></pre>
+                            </div>
+
+                            <h4>3. Validate Configuration</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Test configuration syntax</span>
+sudo sshd -t
+
+<span class="comment"># Should return nothing if config is valid</span></code></pre>
+                            </div>
+
+                            <h4>4. Restart SSH Service</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Reload SSH configuration (safer, doesn't disconnect)</span>
+sudo systemctl reload sshd
+
+<span class="comment"># Or restart if reload doesn't work</span>
+sudo systemctl restart sshd
+
+<span class="comment"># Verify service is running</span>
+sudo systemctl status sshd</code></pre>
+                            </div>
+
+                            <h4>5. Test SSH Connectivity</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># From external system, test SSH connection</span>
+ssh -v admin@vpn-gw-abc.xxx.com
+
+<span class="comment"># Test from multiple sources to ensure it's working</span>
+ssh -i ~/.ssh/client_abc_key.pem admin@vpn-gw-abc.xxx.com "uptime"</code></pre>
+                            </div>
+
+                            <div class="output">
+                                <div class="output-label">✅ Success Output:</div>
+                                <pre>OpenSSH_8.9p1, OpenSSL 3.0.2
+debug1: Connecting to vpn-gw-abc.xxx.com [10.x.x.x] port 22.
+debug1: Connection established.
+debug1: Authentication succeeded (publickey).
+ 15:23:45 up 5 days,  3:18,  2 users,  load average: 0.15, 0.12, 0.08</pre>
+                            </div>
+
+                            <h3>Post-Resolution Actions</h3>
+
+                            <h4>1. Document the Incident</h4>
+                            <div class="alert alert-info">
+                                <p><strong>Required Documentation:</strong></p>
+                                <ul>
+                                    <li>Update ticket #78432 with root cause and resolution</li>
+                                    <li>Create incident report for post-mortem</li>
+                                    <li>Add to knowledge base: "SSH Port Binding Conflicts"</li>
+                                    <li>Update runbook with validation steps</li>
+                                </ul>
+                            </div>
+
+                            <h4>2. Preventive Measures</h4>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-language">bash</span>
+                                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                </div>
+                                <pre><code><span class="comment"># Add monitoring alert for SSH service failures</span>
+curl -X POST "https://api.xxx.com/v2/monitoring/alerts" \
+  -H "Authorization: Bearer xxxTOKENxxx" \
+  -d '{
+    "name": "SSH Service Down - VPN Gateway",
+    "condition": "sshd_status != running",
+    "severity": "critical",
+    "notify": ["oncall-l3@xxx.com"]
+  }'
+
+<span class="comment"># Add configuration validation to automation script</span>
+<span class="comment"># Before: sshd config modification</span>
+<span class="comment"># After: sshd -t validation + port conflict check</span></code></pre>
+                            </div>
+
+                            <h4>3. Customer Communication</h4>
+                            <div class="alert alert-success">
+                                <div class="alert-title">📧 Sample Resolution Email</div>
+                                <p><strong>Subject:</strong> [RESOLVED] Ticket #78432 - SSH Access Restored</p>
+                                <hr style="margin: 10px 0; border-color: var(--border-color);">
+                                <p>Hi John,</p>
+                                <p>I'm pleased to inform you that SSH access to vpn-gw-abc.xxx.com has been fully restored as of 15:25 UTC.</p>
+                                <p><strong>Root Cause:</strong> A configuration management script inadvertently added a duplicate port definition that conflicted with an existing service, causing SSH to fail during a routine reload.</p>
+                                <p><strong>Resolution:</strong> We corrected the configuration, restarted the SSH service, and verified connectivity from multiple locations.</p>
+                                <p><strong>Prevention:</strong> We've implemented additional validation checks in our automation scripts and added monitoring alerts to detect similar issues faster.</p>
+                                <p>Total downtime: ~85 minutes (14:00 - 15:25 UTC)</p>
+                                <p>Please verify that your team can now access the gateway. Let me know if you have any questions!</p>
+                                <p>Best regards,<br>Gabriel Mazer<br>L2 Support Engineer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commands Reference -->
+            <div class="reference" id="commandsRef">
+                <div class="reference-header" onclick="toggleReference('commandsRef')">
+                    <h2 style="margin: 0;">📖 Quick Commands Reference</h2>
+                    <div class="step-chevron">▼</div>
+                </div>
+                <div class="reference-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Purpose</th>
+                                <th>Common Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>systemctl status sshd</code></td>
+                                <td>Check SSH service status</td>
+                                <td><code>start</code>, <code>stop</code>, <code>restart</code>, <code>reload</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>sshd -t</code></td>
+                                <td>Test SSH config syntax</td>
+                                <td><code>-T</code> (dump config), <code>-d</code> (debug mode)</td>
+                            </tr>
+                            <tr>
+                                <td><code>netstat -tuln</code></td>
+                                <td>Show listening ports</td>
+                                <td><code>-p</code> (show PIDs), <code>-a</code> (all connections)</td>
+                            </tr>
+                            <tr>
+                                <td><code>lsof -i :PORT</code></td>
+                                <td>Check what's using a port</td>
+                                <td><code>-i</code> (internet connections)</td>
+                            </tr>
+                            <tr>
+                                <td><code>journalctl -u sshd</code></td>
+                                <td>View SSH service logs</td>
+                                <td><code>-f</code> (follow), <code>--since</code>, <code>--until</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ssh -v</code></td>
+                                <td>Verbose SSH connection</td>
+                                <td><code>-vv</code>, <code>-vvv</code> (more verbose)</td>
+                            </tr>
+                            <tr>
+                                <td><code>nc -zv HOST PORT</code></td>
+                                <td>Test port connectivity</td>
+                                <td><code>-w</code> (timeout)</td>
+                            </tr>
+                            <tr>
+                                <td><code>iptables -L -n</code></td>
+                                <td>List firewall rules</td>
+                                <td><code>-v</code> (verbose), <code>-t nat</code> (NAT table)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Key Takeaways -->
+            <div class="takeaways">
+                <h2 style="color: var(--accent-green); margin-top: 0;">🎯 Key Takeaways</h2>
+                
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Systematic Approach:</strong> Always follow a structured troubleshooting methodology: gather info → check service → analyze logs → verify network → validate config → resolve.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Logs Are Your Friend:</strong> Authentication and system logs contain critical information. Learn to correlate timestamps between different log sources.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Configuration Validation:</strong> Always use <code>sshd -t</code> before restarting SSH service. Syntax errors can lock you out.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Port Conflicts:</strong> Use <code>lsof</code> and <code>netstat</code> to identify port binding conflicts. Common issue when multiple services compete for same ports.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Communication:</strong> Keep customers informed throughout the investigation. Set clear expectations on timeline and next steps.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Prevention > Cure:</strong> After resolving, implement monitoring and validation to prevent recurrence. Update runbooks and automation scripts.
+                    </div>
+                </div>
+
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">✓</div>
+                    <div>
+                        <strong>Document Everything:</strong> Create KB articles for future reference. Your solution today helps the team tomorrow.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Resources -->
+            <h2>🔗 Related Resources</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="alert alert-info" style="margin: 0;">
+                    <div class="alert-title">📚 Knowledge Base</div>
+                    <ul style="margin-top: 10px;">
+                        <li>KB-1234: SSH Best Practices</li>
+                        <li>KB-5678: Firewall Troubleshooting</li>
+                        <li>KB-9012: Service Recovery Procedures</li>
+                    </ul>
+                </div>
+                <div class="alert alert-info" style="margin: 0;">
+                    <div class="alert-title">🎓 Training Labs</div>
+                    <ul style="margin-top: 10px;">
+                        <li>Lab 2.2: VPN Gateway Management</li>
+                        <li>Lab 3.1: Advanced Log Analysis</li>
+                        <li>Lab 4.3: Network Diagnostics</li>
+                    </ul>
+                </div>
+                <div class="alert alert-info" style="margin: 0;">
+                    <div class="alert-title">📖 External Docs</div>
+                    <ul style="margin-top: 10px;">
+                        <li>OpenSSH Manual (man sshd)</li>
+                        <li>RFC 4253: SSH Protocol</li>
+                        <li>Linux System Admin Guide</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>✅ Lab Completion Checklist</h2>
+            <div class="alert alert-success">
+                <p>Before marking this lab as complete, ensure you can:</p>
+                <ul>
+                    <li>☐ Explain the SSH troubleshooting methodology</li>
+                    <li>☐ Use systemctl commands to manage services</li>
+                    <li>☐ Read and interpret authentication logs</li>
+                    <li>☐ Identify port conflicts using lsof/netstat</li>
+                    <li>☐ Edit and validate SSH configuration safely</li>
+                    <li>☐ Write clear customer-facing resolution emails</li>
+                    <li>☐ Document incidents for knowledge sharing</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Company X</strong> | Support Onboarding Program</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">This lab is part of the Level 2 Technical Onboarding curriculum. For questions or feedback, contact: gmazer@xxx.com</p>
+            <p style="margin-top: 15px; color: #666;">© 2025 Company X. Internal training material - Confidential</p>
+        </footer>
+    </div>
+
+    <script>
+        // Toggle accordion steps
+        function toggleStep(element) {
+            const step = element.parentElement;
+            const wasActive = step.classList.contains('active');
+            
+            // Close all steps
+            document.querySelectorAll('.step').forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            // Open clicked step if it wasn't active
+            if (!wasActive) {
+                step.classList.add('active');
+            }
+        }
+
+        // Toggle reference section
+        function toggleReference(id) {
+            const ref = document.getElementById(id);
+            ref.classList.toggle('active');
+        }
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        // Auto-expand first step on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstStep = document.querySelector('.step');
+            if (firstStep) {
+                firstStep.classList.add('active');
+            }
+        });
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
