@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -23,72 +23,474 @@
             background: white;
             border-radius: 20px;
             padding: 50px;
-            max-width: 600px;
+            max-width: 700px;
+            width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        /* Language Switcher */
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            background: #f7fafc;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+        .lang-btn:hover {
+            background: #e2e8f0;
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border: 4px solid white;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         h1 {
             color: #2d3748;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 2rem;
         }
         .subtitle {
             color: #718096;
-            margin-bottom: 40px;
             font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .location {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .intro {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 35px;
+            border-left: 4px solid #667eea;
+        }
+        .intro p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
         }
         .links {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
-        a {
+        .link-item {
             display: block;
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 22px 30px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #2d3748;
             text-decoration: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
             font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        a:hover {
+        .link-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+        .link-item:hover::before {
+            opacity: 1;
+        }
+        .link-item:hover {
+            border-color: #667eea;
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        .link-item:hover .description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .link-item:hover .icon {
+            transform: scale(1.1);
+        }
+        .link-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        .link-text {
+            flex: 1;
+            text-align: left;
+        }
+        .link-title {
+            display: block;
+            margin-bottom: 5px;
         }
         .description {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.9);
-            margin-top: 8px;
+            font-size: 0.85rem;
             font-weight: normal;
+            color: #718096;
+            line-height: 1.4;
+            transition: color 0.3s ease;
         }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .notion-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+        .notion-link::before {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        .notion-link .description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Hidden language content */
+        .lang-content {
+            display: none;
+        }
+        .lang-content.active {
+            display: block;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
             }
+            .language-switcher {
+                top: 15px;
+                right: 15px;
+            }
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
             h1 {
                 font-size: 1.5rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .link-item {
+                padding: 18px 20px;
+            }
+            .icon {
+                font-size: 1.5rem;
+            }
+            .link-title {
+                font-size: 0.95rem;
+            }
+            .description {
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Technical Enablement Portfolio</h1>
-        <p class="subtitle">Gabriel Mazer - Senior Support Engineer</p>
-        
-        <div class="links">
-            <a href="ssh-troubleshooting-lab.html">
-                🔧 SSH Troubleshooting Lab
-                <div class="description">Interactive hands-on troubleshooting guide</div>
-            </a>
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <button class="lang-btn active" onclick="switchLanguage('en')" id="btn-en">EN</button>
+            <button class="lang-btn" onclick="switchLanguage('pt')" id="btn-pt">PT</button>
+        </div>
+
+        <div class="header">
+            <!-- Replace this src with your photo URL after uploading to GitHub -->
+            <img src="profile-photo.png" alt="Gabriel Mazer" class="avatar">
+            <h1>Gabriel Mazer</h1>
             
-            <a href="kb-article-api-auth-401.html">
-                📖 KB Article: API Authentication
-                <div class="description">Resolving 401 Unauthorized errors</div>
+            <!-- English Content -->
+            <div class="lang-content active" data-lang="en">
+                <p class="subtitle">Technical Enablement Portfolio</p>
+                <p class="location">📍 Senior Support Engineer | São Paulo, Brazil</p>
+            </div>
+            
+            <!-- Portuguese Content -->
+            <div class="lang-content" data-lang="pt">
+                <p class="subtitle">Portfólio de Enablement Técnico</p>
+                <p class="location">📍 Engenheiro de Suporte Sênior | São Paulo, Brasil</p>
+            </div>
+        </div>
+
+        <!-- English Intro -->
+        <div class="intro lang-content active" data-lang="en">
+            <p>
+                This portfolio aims to showcase some of my creations in structured technical documentation, 
+                where I developed enablement materials to convey knowledge in a, didactic and
+                scalable way for technical support teams.
+            </p>
+        </div>
+        
+        <!-- Portuguese Intro -->
+        <div class="intro lang-content" data-lang="pt">
+            <p>
+                Este portfólio visa compartilhar algumas de minhas criações de documentação técnica estruturada,
+                em que desenvolvi materiais de enablement, visando transmitir conhecimento de forma didática e 
+                escalável para equipes de suporte técnico.
+            </p>
+        </div>
+
+        <div class="links">
+            <!-- SSH Lab -->
+            <a href="ssh-troubleshooting-lab.html" class="link-item">
+                <div class="link-content">
+                    <span class="icon">🔧</span>
+                    <div class="link-text">
+                        <!-- English -->
+                        <span class="link-title lang-content active" data-lang="en">
+                            SSH Troubleshooting Lab
+                            <span class="badge">INTERACTIVE</span>
+                        </span>
+                        <span class="description lang-content active" data-lang="en">
+                            Hands-on interactive lab with 6 SSH diagnostic steps, code blocks and real scenarios
+                        </span>
+                        
+                        <!-- Portuguese -->
+                        <span class="link-title lang-content" data-lang="pt">
+                            Laboratório de Diagnóstico de Problemas de SSH
+                            <span class="badge">INTERATIVO</span>
+                        </span>
+                        <span class="description lang-content" data-lang="pt">
+                            Laboratório prático e interativo com 6 etapas de diagnóstico SSH, blocos de código e cenários reais.
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- KB Article -->
+            <a href="kb-article-api-auth-401.html" class="link-item">
+                <div class="link-content">
+                    <span class="icon">📖</span>
+                    <div class="link-text">
+                        <!-- English -->
+                        <span class="link-title lang-content active" data-lang="en">
+                            KB Article: API Authentication
+                            <span class="badge">INTERACTIVE</span>
+                        </span>
+                        <span class="description lang-content active" data-lang="en">
+                            Complete article on resolving 401 Unauthorized errors with OAuth 2.0 and JWT
+                        </span>
+                        
+                        <!-- Portuguese -->
+                        <span class="link-title lang-content" data-lang="pt">
+                            Artigo KB: Autenticação de API
+                            <span class="badge">INTERATIVO</span>
+                        </span>
+                        <span class="description lang-content" data-lang="pt">
+                            Artigo completo sobre resolução de erros 401 Unauthorized com OAuth 2.0 e JWT
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Onboarding Playbook -->
+            <a href="technical-onboarding-playbook.pdf" class="link-item" target="_blank">
+                <div class="link-content">
+                    <span class="icon">📚</span>
+                    <div class="link-text">
+                        <!-- English -->
+                        <span class="link-title lang-content active" data-lang="en">
+                            Technical Onboarding Playbook
+                            <span class="badge">PDF</span>
+                        </span>
+                        <span class="description lang-content active" data-lang="en">
+                            Complete 4-week guide for L2 analyst onboarding (14 pages)
+                        </span>
+                        
+                        <!-- Portuguese -->
+                        <span class="link-title lang-content" data-lang="pt">
+                            Guia de Onboarding Técnico
+                            <span class="badge">PDF</span>
+                        </span>
+                        <span class="description lang-content" data-lang="pt">
+                            Guia completo de 4 semanas para onboarding de analistas L2 (20 páginas)
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Escalation Playbook -->
+            <a href="escalation-performance-playbook.pdf" class="link-item" target="_blank">
+                <div class="link-content">
+                    <span class="icon">📋</span>
+                    <div class="link-text">
+                        <!-- English -->
+                        <span class="link-title lang-content active" data-lang="en">
+                            Escalation & Performance Playbook
+                            <span class="badge">PDF</span>
+                        </span>
+                        <span class="description lang-content active" data-lang="en">
+                            5 case studies on crisis management, escalations and communication templates (33 pages)
+                        </span>
+                        
+                        <!-- Portuguese -->
+                        <span class="link-title lang-content" data-lang="pt">
+                            Playbook de Escalonamento e Desempenho
+                            <span class="badge">PDF</span>
+                        </span>
+                        <span class="description lang-content" data-lang="pt">
+                            5 estudos de caso em situações de gestão de crises, escalonamento e templates de comunicação (33 páginas)
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Notion Portfolio -->
+            <a href="https://www.notion.so/Technical-Enablement-Portfolio-29c3e3f89257809cb02ccffe8794fffe?source=copy_link" class="link-item notion-link" target="_blank">
+                <div class="link-content">
+                    <span class="icon">🎯</span>
+                    <div class="link-text">
+                        <!-- English -->
+                        <span class="link-title lang-content active" data-lang="en">
+                            Complete Portfolio & Methodology
+                            <span class="badge">NOTION</span>
+                        </span>
+                        <span class="description lang-content active" data-lang="en">
+                            Complete portfolio overview with methodology, impact metrics and context for each item
+                        </span>
+                        
+                        <!-- Portuguese -->
+                        <span class="link-title lang-content" data-lang="pt">
+                            Portfólio Completo & Metodologia
+                            <span class="badge">NOTION</span>
+                        </span>
+                        <span class="description lang-content" data-lang="pt">
+                            Visão completa do portfólio com metodologia, impacto, métricas e contexto de cada item
+                        </span>
+                    </div>
+                </div>
             </a>
         </div>
+
+        <div class="footer">
+            <!-- English Footer -->
+            <div class="lang-content active" data-lang="en">
+                <p>
+                    <strong>📧 Contact:</strong> 
+                    <a href="mailto:gabriel.mazer@outlook.com">gabriel.mazer@outlook.com</a> | 
+                    <a href="https://linkedin.com/in/gabrielmazer" target="_blank">LinkedIn</a> | 
+                    <a href="https://github.com/gabrielmazer" target="_blank">GitHub</a>
+                </p>
+                <p style="margin-top: 15px; color: #a0aec0; font-size: 0.85rem;">
+                    All materials have been sanitized for portfolio purposes. Sensitive information has been replaced with placeholders.
+                </p>
+            </div>
+            
+            <!-- Portuguese Footer -->
+            <div class="lang-content" data-lang="pt">
+                <p>
+                    <strong>📧 Contato:</strong> 
+                    <a href="mailto:gabriel.mazer@outlook.com">gabriel.mazer@outlook.com</a> | 
+                    <a href="https://linkedin.com/in/gabrielmazer" target="_blank">LinkedIn</a> | 
+                    <a href="https://github.com/gabrielmazer" target="_blank">GitHub</a>
+                </p>
+                <p style="margin-top: 15px; color: #a0aec0; font-size: 0.85rem;">
+                    Todos os materiais foram sanitizados para fins de portfólio. Informações sensíveis foram substituídas por placeholders.
+                </p>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + lang).classList.add('active');
+            
+            // Hide all language content
+            document.querySelectorAll('.lang-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected language content
+            document.querySelectorAll('.lang-content[data-lang="' + lang + '"]').forEach(content => {
+                content.classList.add('active');
+            });
+            
+            // Save preference
+            localStorage.setItem('preferredLanguage', lang);
+        }
+        
+        // Load saved language preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang) {
+                switchLanguage(savedLang);
+            }
+        });
+    </script>
 </body>
 </html>
