@@ -695,7 +695,7 @@
                 <div class="article-meta">
                     <div class="meta-item">
                         <span>📅</span>
-                        <span>Last Updated: March 8, 2025</span>
+                        <span>Last Updated: March 8, 2024</span>
                     </div>
                     <div class="meta-item">
                         <span>👤</span>
@@ -703,11 +703,11 @@
                     </div>
                     <div class="meta-item">
                         <span>👁️</span>
-                        <span>Views: 307</span>
+                        <span>Views: 2,847</span>
                     </div>
                     <div class="meta-item">
                         <span>⭐</span>
-                        <span>Helpful: 94% (35 votes)</span>
+                        <span>Helpful: 94% (218 votes)</span>
                     </div>
                 </div>
             </div>
@@ -749,7 +749,7 @@ WWW-Authenticate: Bearer realm="Company X API"
   "error": "unauthorized",
   "error_description": "The access token is invalid or has expired",
   "error_code": "E-AUTH-001",
-  "timestamp": "2025-03-08T14:23:45Z",
+  "timestamp": "2024-03-08T14:23:45Z",
   "request_id": "req_xxxxxxxxxx"
 }</code></pre>
             </div>
@@ -1128,7 +1128,7 @@ WWW-Authenticate: Bearer error="insufficient_scope", error_description="Token la
                 </div>
             </div>
 
-            <!-- Verification -->
+
             <h2 id="verification">✔️ Verification</h2>
             <p>After implementing the resolution steps, verify that the issue is resolved:</p>
 
@@ -1149,7 +1149,7 @@ X-RateLimit-Remaining: 987
   "data": {
     "organization_id": "org_xxxxxxxxxx",
     "name": "Client ABC",
-    "created_at": "2025-01-15T10:30:00Z",
+    "created_at": "2024-01-15T10:30:00Z",
     ...
   }
 }</code></pre>
@@ -1224,7 +1224,7 @@ for endpoint in endpoints:
                 </div>
             </div>
 
-            <!-- Prevention -->
+
             <h2 id="prevention">🛡️ Prevention & Best Practices</h2>
             <p>Implement these practices to avoid authentication issues in your applications:</p>
 
@@ -1350,7 +1350,7 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
                 </div>
             </div>
 
-            <!-- Additional Resources -->
+
             <div class="expandable" style="margin-top: 40px;">
                 <div class="expandable-header" onclick="toggleExpandable(this)">
                     <span><strong>📚 Additional Technical Details</strong></span>
@@ -1405,7 +1405,7 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
                 </div>
             </div>
 
-            <!-- Feedback Section -->
+
             <div class="feedback">
                 <h3>Was this article helpful?</h3>
                 <p style="color: var(--text-secondary);">Your feedback helps us improve our documentation</p>
@@ -1425,10 +1425,10 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
                 </p>
             </div>
 
-            <!-- Article Footer -->
+
             <div class="article-footer">
                 <div>
-                    <strong>Last reviewed:</strong> March 8, 5<br>
+                    <strong>Last reviewed:</strong> March 8, 2024<br>
                     <strong>Article ID:</strong> KB-5891
                 </div>
                 <div class="social-share">
@@ -1441,13 +1441,12 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
         </main>
     </div>
 
-    <!-- Scroll to Top Button -->
     <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
         ↑
     </div>
 
     <script>
-        // Copy code functionality
+
         function copyCode(button) {
             const codeBlock = button.closest('.code-block');
             const code = codeBlock.querySelector('code').textContent;
@@ -1467,13 +1466,13 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
             });
         }
 
-        // Toggle expandable sections
+
         function toggleExpandable(header) {
             const expandable = header.parentElement;
             expandable.classList.toggle('active');
         }
 
-        // Scroll to top functionality
+
         const scrollTopBtn = document.getElementById('scrollTop');
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 300) {
@@ -1487,7 +1486,6 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Active TOC highlighting
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const id = entry.target.getAttribute('id');
@@ -1501,7 +1499,7 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
 
         document.querySelectorAll('h2[id]').forEach(section => observer.observe(section));
 
-        // Feedback functionality
+
         function submitFeedback(type) {
             const buttons = document.querySelectorAll('.feedback-btn');
             buttons.forEach(btn => {
@@ -1512,13 +1510,13 @@ headers = {"Authorization": f"Bearer {token_mgr.get_token()}"}</code></pre>
                 }
             });
             
-            // Simulate feedback submission
+
             setTimeout(() => {
                 alert('Thank you for your feedback!');
             }, 300);
         }
 
-        // Smooth scroll for anchor links
+
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
