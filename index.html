@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabriel Mazer - Technical Enablement Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        a {
+            display: block;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+        a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .description {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 8px;
+            font-weight: normal;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Technical Enablement Portfolio</h1>
+        <p class="subtitle">Gabriel Mazer - Senior Support Engineer</p>
+        
+        <div class="links">
+            <a href="ssh-troubleshooting-lab.html">
+                🔧 SSH Troubleshooting Lab
+                <div class="description">Interactive hands-on troubleshooting guide</div>
+            </a>
+            
+            <a href="kb-article-api-auth-401.html">
+                📖 KB Article: API Authentication
+                <div class="description">Resolving 401 Unauthorized errors</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
